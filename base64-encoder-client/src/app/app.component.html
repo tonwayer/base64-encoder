@@ -1,0 +1,24 @@
+<div class="container mt-5">
+  <div class="container mt-5">
+    <h1 class="text-center">Base64 Encoder</h1>
+  
+    <!-- Input Field for User Text -->
+    <div class="form-group">
+      <label for="inputText">Enter Text:</label>
+      <input id="inputText" [(ngModel)]="inputText" class="form-control" type="text" [disabled]="isProcessing">
+    </div>
+  
+    <!-- Convert and Cancel Buttons -->
+    <div class="d-flex justify-content-between mt-3">
+      <button class="btn btn-primary" (click)="convertText()" [disabled]="isProcessing">Convert</button>
+      <button class="btn btn-danger" (click)="cancelProcessing()" [disabled]="!isProcessing">Cancel</button>
+    </div>
+  
+    <!-- Encoded Text Display -->
+    <div class="mt-4">
+      <h3>Encoded Text:</h3>
+      <textarea class="form-control" [value]="encodedText" rows="5" readonly></textarea>
+    </div>
+  </div>
+  
+</div>
