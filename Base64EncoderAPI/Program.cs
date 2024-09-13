@@ -26,16 +26,30 @@ app.MapHub<EncodeHub>("encodehub");
 
 app.MapPost("/api/encode", static async (JsonElement request, IHubContext<EncodeHub> hubcontext) =>
 {
-    string? input = request.GetProperty("input").GetString() ?? "";
-    var base64String = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(input));
-
-    foreach (var ch in base64String)
+    try
     {
-        await Task.Delay(new Random().Next(1000, 5000));
-        await hubcontext.Clients.All.SendAsync("ReceiveCharacter", ch);
-    }
+        string? input = request.GetProperty("input").GetString() ?? "";
+        if (string.IsNullOrEmpty(input))
+        {
+            return Results.BadRequest("Input cannot be null or empty.");
+        }
 
-    return Results.Ok();
+        var base64String = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(input));
+
+        foreach (var ch in base64String)
+        {
+            await Task.Delay(new Random().Next(1000, 5000));
+            await hubcontext.Clients.All.SendAsync("ReceiveCharacter", ch);
+        }
+
+        return Results.Ok();
+    }
+    catch (Exception ex)
+    {
+        // Log the exception (if logging is configured)
+        Console.WriteLine($"Error during encoding: {ex.Message}");
+        return Results.StatusCode(500);
+    }
 });
 
 app.Run();
