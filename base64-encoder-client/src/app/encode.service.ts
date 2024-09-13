@@ -16,7 +16,8 @@ export class EncodeService {
 
   private startSignalRConnection() {
     this.hubConnection = new signalR.HubConnectionBuilder()
-      .withUrl(`${environment.apiUrl}` + '/encodehub')
+      .withUrl(`${environment.apiUrl}/encodehub`)
+      .withAutomaticReconnect([0, 2000, 10000, 30000])
       .build();
 
     this.hubConnection.on('ReceiveCharacter', (char: string) => {
@@ -26,18 +27,28 @@ export class EncodeService {
 
     this.hubConnection
       .start()
+      .then(() => console.log('SignalR connection established.'))
       .catch(err => console.error('SignalR Error: ', err));
   }
 
   public encodeText(input: string) {
-    return fetch(`${environment.apiUrl}` + '/api/encode', {
+    if (input.trim() === "") {
+      alert("Please provide text to encode.");
+      return;
+    }
+    return fetch(`${environment.apiUrl}/api/encode`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({input})
+      body: JSON.stringify({ input })
     });
   }
 
   public stopSignalRConnection() {
     this.hubConnection?.stop();
+  }
+
+  public stopEncoding() {
+    this.stopSignalRConnection();
+    this.encodedText$.next('');
   }
 }

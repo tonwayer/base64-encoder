@@ -1,24 +1,22 @@
 <div class="container mt-5">
-  <div class="container mt-5">
-    <h1 class="text-center">Base64 Encoder</h1>
-  
-    <!-- Input Field for User Text -->
-    <div class="form-group">
-      <label for="inputText">Enter Text:</label>
-      <input id="inputText" [(ngModel)]="inputText" class="form-control" type="text" [disabled]="isProcessing">
-    </div>
-  
-    <!-- Convert and Cancel Buttons -->
-    <div class="d-flex justify-content-between mt-3">
-      <button class="btn btn-primary" (click)="convertText()" [disabled]="isProcessing">Convert</button>
-      <button class="btn btn-danger" (click)="cancelProcessing()" [disabled]="!isProcessing">Cancel</button>
-    </div>
-  
-    <!-- Encoded Text Display -->
-    <div class="mt-4">
-      <h3>Encoded Text:</h3>
-      <textarea class="form-control" [value]="encodedText" rows="5" readonly></textarea>
+  <div class="text-center">
+    <h1 class="mb-4">Base64 Encoder</h1>
+  </div>
+
+  <div class="form-group">
+    <label for="inputText" class="form-label">Text to encode:</label>
+    <input [(ngModel)]="inputText" class="form-control form-control-lg" id="inputText" placeholder="Enter text">
+  </div>
+
+  <div class="d-flex justify-content-center mt-4">
+    <div class="btn-group">
+      <button (click)="onEncode()" class="btn btn-primary btn-lg">Encode</button>
+      <button (click)="onStop()" class="btn btn-danger btn-lg">Stop</button>
     </div>
   </div>
-  
+
+  <div class="mt-5">
+    <h2 class="text-center">Encoded Text</h2>
+    <textarea class="form-control" [value]="encodedText$ | async" rows="5" readonly></textarea>
+  </div>
 </div>

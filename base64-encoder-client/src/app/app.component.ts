@@ -1,39 +1,31 @@
-import { Component } from '@angular/core';
-import { FormsModule } from '@angular/forms';  // Import FormsModule
+import { Component, OnInit } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { CommonModule  } from '@angular/common';
 import { EncodeService } from './encode.service';
+import { BehaviorSubject } from 'rxjs';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css'],
-  standalone: true,  // Define this component as standalone
-  imports: [FormsModule]  // Import FormsModule directly here
+  standalone: true,
+  imports: [FormsModule, CommonModule]
 })
-export class AppComponent {
-  inputText: string = '';  // User input text
-  encodedText: string = '';  // Encoded Base64 text
-  isProcessing: boolean = false;  // Flag to disable buttons during processing
+export class AppComponent implements OnInit {
+  inputText: string = '';
+  encodedText$: BehaviorSubject<string> | undefined;
 
-  constructor(private encodeService: EncodeService) {
-    // Subscribe to the service to update the encoded text in real time
-    this.encodeService.encodedText$.subscribe(text => {
-      this.encodedText = text;
-    });
+  constructor(private encodeService: EncodeService) {}
+
+  ngOnInit() {
+    this.encodedText$ = this.encodeService.encodedText$;
   }
 
-  // Handle the Convert button click to start encoding
-  convertText() {
-    this.isProcessing = true;
-    this.encodedText = '';  // Reset the encoded text
-    this.encodeService.encodedText$.next('');  // Clear the BehaviorSubject value
-    this.encodeService.encodeText(this.inputText)
-      .then(() => this.isProcessing = false)  // Once complete, stop processing
-      .catch(err => console.error('Error: ', err));
+  onEncode() {
+    this.encodeService.encodeText(this.inputText);
   }
 
-  // Handle the Cancel button click to stop encoding
-  cancelProcessing() {
-    this.isProcessing = false;
-    this.encodeService.stopSignalRConnection();  // Stop SignalR connection
+  onStop() {
+    this.encodeService.stopEncoding();
   }
 }
