@@ -4,13 +4,15 @@ using System.Text.Json;
 
 
 var builder = WebApplication.CreateBuilder(args);
+var allowedOrigins = builder.Configuration["Cors:AllowedOrigins"] ?? string.Empty;
+
 builder.Services.AddSignalR();
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(builder =>
     {
         builder
-            .WithOrigins("http://127.0.0.1:4200")
+            .WithOrigins(allowedOrigins.Split(',', StringSplitOptions.RemoveEmptyEntries))
             .AllowAnyHeader()
             .AllowAnyMethod()
             .AllowCredentials();
