@@ -10,11 +10,16 @@
 
   <div class="d-flex justify-content-center mt-4">
     <div class="btn-group">
-      <button (click)="onEncode()" class="btn btn-primary btn-lg">Encode</button>
+      <button (click)="onEncode()" class="btn btn-primary btn-lg" [disabled]="isEncoding$ | async">Encode</button>
       <button (click)="onStop()" class="btn btn-danger btn-lg">Stop</button>
     </div>
   </div>
-
+  <div class="text-center mt-3" *ngIf="isEncoding$ | async">
+    <div class="spinner-border" role="status">
+      <span class="visually-hidden">Encoding in progress...</span>
+    </div>
+    <p>Encoding in progress...</p>
+  </div>
   <div class="mt-5">
     <h2 class="text-center">Encoded Text</h2>
     <textarea class="form-control" [value]="encodedText$ | async" rows="5" readonly></textarea>

@@ -14,15 +14,18 @@ import { BehaviorSubject } from 'rxjs';
 export class AppComponent implements OnInit {
   inputText: string = '';
   encodedText$: BehaviorSubject<string> | undefined;
+  isEncoding$: BehaviorSubject<boolean> | undefined;
 
   constructor(private encodeService: EncodeService) {}
 
   ngOnInit() {
     this.encodedText$ = this.encodeService.encodedText$;
+    this.isEncoding$ = this.encodeService.isEncoding;
   }
 
   onEncode() {
     this.encodeService.encodeText(this.inputText);
+    this.encodeService.restartSignalRConnection();
   }
 
   onStop() {
