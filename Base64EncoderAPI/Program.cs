@@ -46,7 +46,6 @@ app.MapPost("/api/encode", static async (JsonElement request, IHubContext<Encode
     }
     catch (Exception ex)
     {
-        // Log the exception (if logging is configured)
         Console.WriteLine($"Error during encoding: {ex.Message}");
         return Results.StatusCode(500);
     }
