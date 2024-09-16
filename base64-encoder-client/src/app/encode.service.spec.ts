@@ -1,56 +1,54 @@
 import { TestBed } from '@angular/core/testing';
-import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { EncodeService } from './encode.service';
-import { HttpClient } from '@angular/common/http';
 import { environment } from '../environments/environment';
+import * as signalR from '@microsoft/signalr';
 
 describe('EncodeService', () => {
   let service: EncodeService;
-  let httpMock: HttpTestingController;
+  let mockHubConnection: jasmine.SpyObj<signalR.HubConnection>;
 
   beforeEach(() => {
+    mockHubConnection = jasmine.createSpyObj('HubConnection', ['start', 'stop', 'on', 'send', 'invoke']);
+    
     TestBed.configureTestingModule({
-      imports: [HttpClientTestingModule],
-      providers: [EncodeService]
+      providers: [
+        EncodeService,
+        { provide: signalR.HubConnectionBuilder, useValue: { build: () => mockHubConnection } }
+      ]
     });
 
     service = TestBed.inject(EncodeService);
-    httpMock = TestBed.inject(HttpTestingController);
-  });
 
-  afterEach(() => {
-    httpMock.verify();
+    // Mock the fetch function
+    spyOn(window, 'fetch').and.returnValue(Promise.resolve(new Response(null, { status: 200 })));
   });
 
   it('should be created', () => {
     expect(service).toBeTruthy();
   });
 
-  it('should send a POST request with correct headers and payload', () => {
+  it('should send a POST request with correct headers and payload', async () => {
     const inputText = 'Hello, World!';
-    const expectedHeaders = {
-      'Content-Type': 'application/json'
-    };
-
-    service.encodeText(inputText).subscribe();
-
-    const req = httpMock.expectOne(`${environment.apiUrl}/api/encode`);
-    expect(req.request.method).toBe('POST');
-    expect(req.request.body).toEqual({ input: inputText });
-
-    expect(req.request.headers.get('Authorization')).toBe(expectedHeaders.Authorization);
-    expect(req.request.headers.get('Content-Type')).toBe(expectedHeaders['Content-Type']);
-
-    req.flush({});
+    
+    // Call the encodeText method and wait for it to complete
+    await service.encodeText(inputText);
+    
+    // Use environment.apiUrl instead of service['baseUrl']
+    expect(window.fetch).toHaveBeenCalledWith(`${environment.apiUrl}/api/encode`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ input: inputText })
+    });
   });
 
-  it('should handle empty input text gracefully', () => {
-    service.encodeText('').subscribe({
-      next: () => fail('The request should not succeed with empty input'),
-      error: (error) => expect(error).toBeTruthy()
-    });
+  it('should handle empty input text gracefully', async () => {
+    spyOn(window, 'alert'); // Spy on alert to prevent it from showing in tests
 
-    // Ensure no request is made
-    httpMock.expectNone(`${environment.apiUrl}/api/encode`);
+    // Call the encodeText method with empty input
+    await service.encodeText('');
+
+    // Ensure that no fetch request is made
+    expect(window.fetch).not.toHaveBeenCalled();
+    expect(window.alert).toHaveBeenCalledWith('Please provide text to encode.');
   });
 });
